@@ -11,15 +11,4 @@ Vagrant.configure("2") do |config|
     end
     s.vm.provision "shell", path: "scripts/server.sh"
   end
-
-  config.vm.define "ebenoistSW" do |w|
-    w.vm.hostname = "ebenoistSW"
-    w.vm.network "private_network", ip: "192.168.56.111"
-    w.vm.provider "virtualbox" do |v|
-      v.name = "ebenoistSW"
-      v.cpus = 1
-      v.memory = 2048
-    end
-    w.vm.provision "shell", path: "scripts/worker.sh"
-  end
 end
