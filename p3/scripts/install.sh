@@ -24,3 +24,34 @@ kubectl create namespace dev
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl -n argocd wait --for=condition=available --timeout=600s deployment/argocd-server
 kubectl apply -f confs/application.yaml
+set -e
+
+echo "Updating..."
+sudo apt update
+
+echo "Installing dependencies..."
+sudo apt install -y curl wget git
+
+echo "Installing k3d..."
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+echo "Installing kubectl..."
+curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+echo "Installing ArgoCD CLI..."
+curl -sSL -o argocd \
+https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+
+chmod +x argocd
+sudo mv argocd /usr/local/bin/
+
+echo "Versions:"
+docker --version
+k3d version
+kubectl version --client
+argocd version --client
+
+echo "Done."
