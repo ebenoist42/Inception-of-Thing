@@ -1,10 +1,18 @@
 # Setup
 
 sudo bash scripts/install.sh
+k3d cluster creat iot
+
+
+# teste si kubectl pointe bien sur iot 
+kubetcl config current-context
+(attendu k3d-iot, si non : kubectl config use-context k3d-iot)
 
 # Usage
+# Check kubernetes repond 
+kubetcl get nodes
 
-# Check namespaces (argocd + dev must be Active)
+# Check namespaces (argocd + dev must be Active ! si argocd et ou dec pas active faire " kubectl create namespace argocd  /et/ kubectl create namespace dev )
 kubectl get ns
 
 # Check Argo CD pods
@@ -15,11 +23,24 @@ kubectl get pods -n dev
 
 
 # Argo CD installé + accessible navigateur (login/password)
-# mot de passe admin
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
-# accès UI
-kubectl port-forward svc/argocd-server -n argocd 8080:443 &
-(https://localhost:8080, login admin + le mot de passe affiché)
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -f confs/application.yaml
+
+# Attendre 1 min puis faire cette commande (tout doit running) 
+kubectl get pods -n argocd
+
+# Dans un autre terminal :
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# Ouvre navigateur :
+https://localhost:8080
+
+# Récupérer le mot de passe admin
+kubectl -n argocd get secret argocd-initial-admin-secret \
+-o jsonpath="{.data.password}" | base64 -d
+
+# Login :
+admin
 
 # Image Docker utilisée dans le repo GitHub
 cat ~/iot-gitops/deployment.yaml | grep image
