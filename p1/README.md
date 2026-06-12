@@ -1,40 +1,43 @@
-À la fin de cette session (quand P1 marche), sauvegarde le cache Vagrant :
 
-sh# Sauvegarde sur ton disque dur externe
-cp -r /goinfre/$USER/.vagrant.d /run/media/ebenoist/Samsung_T5/vagrant_cache
-
-
-
-Au début de la prochaine session :
-
-sh# Restore
-mkdir -p /goinfre/$USER
-cp -r /run/media/ebenoist/Samsung_T5/vagrant_cache /goinfre/$USER/.vagrant.d
-export VAGRANT_HOME=/goinfre/$USER/.vagrant.d
-VBoxManage setproperty machinefolder /goinfre/$USER/VirtualBox
-
-
-
-verifier si deux vm tourne bien :
+# verifier si deux vm tourne bien / voir les ip / les deux noeuds sont dans le meme cluster :
 
 vagrant ssh ebenoistS -c "sudo kubectl get nodes -o wide"
 
-Pour down les deux vm : 
+
+# teste des ssh (pas de mdp requis):
+
+vagrant ssh ebenoistS
+
+ou 
+
+vagrant ssh ebenoistSW
+
+exit
+
+# Check utilisation K3s sur les machine :
+
+vagrant ssh ebenoistS -c "k3s --version"
+vagrant ssh ebenoistS -c "sudo systemctl is-active k3s"          # active (mode server)
+vagrant ssh ebenoistSW -c "sudo systemctl is-active k3s-agent"   # active (mode agent)
+
+# down les deux vm : 
 
 vagrant halt
 vagrant destroy -f
 
-
-#2 Tue les processus VirtualBox bloqués
+# Tue les processus VirtualBox bloqués
 pkill -f VBoxSVC 2>/dev/null
 sleep 3
 
-#3. Nettoie les VM inaccessibles
+# Nettoie les VM inaccessibles
 for uuid in $(VBoxManage list vms | grep inaccessible | grep -oE '\{[a-f0-9-]+\}' | tr -d '{}'); do
   VBoxManage unregistervm "$uuid" 2>/dev/null
 done
 VBoxManage list vms
 
-#4 supprimer les log des box
+# supprimer les log des box
 find ~ -maxdepth 4 -name "*VBoxHeadless*" -delete 2>/dev/null
 find ~ -maxdepth 4 -name "*VirtualBoxVM*" -delete 2>/dev/null
+
+
+# 
