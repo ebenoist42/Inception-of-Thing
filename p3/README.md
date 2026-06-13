@@ -78,6 +78,9 @@ git commit -am "v1"
 git push
 curl http://localhost:8888/           # {"status":"ok", "message": "v1"}
 
+si entre refresh un pod et detruit faire cette commande : 
+kubectl port-forward -n dev svc/playground 8888:8888 &
+sleep 2
 
 TEARDOWN
 
